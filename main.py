@@ -3,7 +3,7 @@ import heapq
 
 
 # csv modülü ile kodumuza csv dosylarını okuyabilme yeteneği kazandırdık.
-# heapq modülü ile
+# heapq modülü ile küçükten büyüğe sıralı bir kuyruk yapısı kullanarak tır ve gemileri belirli bir sırada işledik.
 
 
 # Tır nesnesin özelliklerini tanımladık.
@@ -16,9 +16,10 @@ class Tir:
         self.yuk = yirmi_ton * 20 + otuz_ton * 30
         self.maliyet = maliyet
 
-# Gelen tırları plakalarına göre sıraya koymak için less than fonksiyonunu kullandık.
+    # Gelen tırları plakalarına göre sıraya koymak için less than fonksiyonunu kullandık.
     def __lt__(self, other):
         return self.plaka < other.plaka
+
 
 # Oluşturduğunuz gemi nesnesinin özelliklerini tanımladık.
 class Gemi:
@@ -29,9 +30,10 @@ class Gemi:
         self.yuk = 0
         self.yukleme = False
 
-# Gelen gemileri numaralarına göre sıraya koymak için less than fonksiyonunu kullandık.
+    # Gelen gemileri numaralarına göre sıraya koymak için less than fonksiyonunu kullandık.
     def __lt__(self, other):
         return self.numara < other.numara
+
 
 # Liman sınıfının özelliklerini tanımladık.
 class Liman:
@@ -48,7 +50,7 @@ class Liman:
         self.vinc_limit = 20
         self.t = 0
 
-# olaylar.csv dosyasından tır bilgilerini alarak kuyruğa ekledik
+    # olaylar.csv dosyasından tır bilgilerini alarak kuyruğa ekledik
     def tir_bilgisi_okuma(self):
         with open("olaylar.csv") as f:
             reader = csv.DictReader(f)
@@ -72,18 +74,18 @@ class Liman:
                 gemi = Gemi(numara, kapasite, hedef_ulke)
                 heapq.heappush(self.gemi_kuyrugu, gemi)
 
-# Kuyruğa eklenmiş olan tırları sırasıyla istifl alanına yerleştirdik.
+    # Kuyruğa eklenmiş olan tırları sırasıyla istifl alanına yerleştirdik.
     def tir_yuk_indirme(self):
         while self.tir_kuyrugu:
             tir = heapq.heappop(self.tir_kuyrugu)
-            print(f"{self.t}. dakikada {tir.plaka} plakalı TIR yükünü indirdi.")
+            print(f"{self.t}. dakikada {tir.plaka} plakalı tır yükünü indirdi.")
             self.istif_alani_1.append(tir)
             self.istif_alani_1_yuk += tir.yuk
             if self.istif_alani_1_yuk >= self.istif_alani_1_kapasite:
                 print(f"1 numaralı istif alanı dolu. ({self.istif_alani_1_yuk} ton)")
             self.t += 1
 
-# Kuyruğa eklenmiş olan gemilere tırları yükledik ve limandan ayrılan gemileri takip ettik
+    # Kuyruğa eklenmiş olan gemilere tırları yükledik ve limandan ayrılan gemileri takip ettik
     def gemi_yuk_yukleme(self):
         while self.gemi_kuyrugu:
             # Gemi kuyruğundan en küçük gemi numarasına sahip gemiyi çıkar
@@ -91,46 +93,46 @@ class Liman:
             print(f"{self.t}. dakikada {gemi.numara} numaralı gemi yükleme için hazır.")
 
             while self.istif_alani_1 or self.istif_alani_2:
-                # 1 numaralı istif alanından TIR çıkar
+                # 1 numaralı istif alanından tır çıkar
                 if self.istif_alani_1:
                     tir = self.istif_alani_1.pop()
                     self.istif_alani_1_yuk -= tir.yuk
                     if self.istif_alani_1_yuk == 0:
                         print(f"1 numaralı istif alanı boş. ({self.istif_alani_1_yuk} ton)")
 
-                    # Eğer TIR'ın ülkesi geminin hedef ülkesi ile aynıysa yükleme yap
+                    # Eğer tırın ülkesi geminin hedef ülkesi ile aynıysa yükleme yap
                     if tir.ulke == gemi.hedef_ulke:
                         gemi.yuk += tir.yuk
                         gemi.yukleme = True
                         print(
-                            f"{self.t}. dakikada {gemi.numara} numaralı gemiye {tir.plaka} plakalı TIRın yükü yüklendi. ({tir.ulke}) ({tir.maliyet}₺)")
+                            f"{self.t}. dakikada {gemi.numara} numaralı gemiye {tir.plaka} plakalı tırın yükü yüklendi. ({tir.ulke}) ({tir.maliyet} ₺)")
                     else:
-                        # Aynı değilse TIR'ı 2 numaralı istif alanına taşı
+                        # Aynı değilse tırı 2 numaralı istif alanına taşı
                         self.istif_alani_2.append(tir)
                         self.istif_alani_2_yuk += tir.yuk
                         print(
-                            f"{self.t}. dakikada {tir.plaka} plakalı TIRın yükü 1 numaralı istif alanından 2 numaralı istif alanına taşındı. ({tir.ulke})")
+                            f"{self.t}. dakikada {tir.plaka} plakalı tırın yükü 1 numaralı istif alanından 2 numaralı istif alanına taşındı. ({tir.ulke})")
                 else:
-                    # 2 numaralı istif alanından TIR çıkar
+                    # 2 numaralı istif alanından tır çıkar
                     tir = self.istif_alani_2.pop()
                     self.istif_alani_2_yuk -= tir.yuk
                     if self.istif_alani_2_yuk == 0:
                         print(f"2 numaralı istif alanı boş. ({self.istif_alani_2_yuk} ton)")
 
-                    # Eğer TIR'ın ülkesi geminin hedef ülkesi ile aynıysa yükleme yap
+                    # Eğer tırın ülkesi geminin hedef ülkesi ile aynıysa yükleme yap
                     if tir.ulke == gemi.hedef_ulke:
                         gemi.yuk += tir.yuk
                         gemi.yukleme = True
                         print(
-                            f"{self.t}. dakikada {gemi.numara} numaralı gemiye {tir.plaka} plakalı TIRın yükü yüklendi. ({tir.ulke})")
+                            f"{self.t}. dakikada {gemi.numara} numaralı gemiye {tir.plaka} plakalı tırın yükü yüklendi. ({tir.ulke})")
                     else:
-                        # Aynı değilse TIR'ı 1 numaralı istif alanına taşı
+                        # Aynı değilse tırın 1 numaralı istif alanına taşı
                         self.istif_alani_1.append(tir)
                         self.istif_alani_1_yuk += tir.yuk
                         print(
-                            f"{self.t}. dakikada {tir.plaka} plakalı TIRın yükü 2 numaralı istif alanından 1 numaralı istif alanına taşındı. ({tir.ulke})")
+                            f"{self.t}. dakikada {tir.plaka} plakalı tırın yükü 2 numaralı istif alanından 1 numaralı istif alanına taşındı. ({tir.ulke})")
 
-                # Gemi yük kapasitesinin %95'ini aştıysa limanı terk et
+                # Gemi yük kapasitesinin %95'ini aştıysa limanı terk eder
                 if gemi.yuk >= gemi.kapasite * 0.95:
                     print(f"{self.t}. dakikada {gemi.numara} numaralı gemi limanı terk etti. ({gemi.yuk} ton)")
                     break
